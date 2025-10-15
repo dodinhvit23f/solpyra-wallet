@@ -1,0 +1,80 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: shopizer-be
+  jpa:
+    properties:
+      naming:
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+    property-naming-strategy: LOWER_CAMEL_CASE
+    default-property-inclusion: non_empty
+    parser:
+      allow-numeric-leading-zeros: true
+      allow-non-numeric-numbers: true
+      use-fast-big-number-parser: true
+    deserialization:
+      accept-float-as-int: false
+  servlet:
+    multipart:
+      max-file-size: 4MB
+      max-request-size: 5MB
+      resolve-lazily: false
+  flyway:
+    enabled: ${FLY_WAY_ENABLE}
+    locations: classpath:migration
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    host: ENC(${DB_HOST})
+    database-name: ENC(${DATABASE_NAME})
+    url: jdbc:postgresql://${spring.datasource.host}:${DB_PORT}/${spring.datasource.database-name}
+    username: ENC(${DB_USERNAME})
+    password: ENC(${DB_USER_PASSWORD})
+    hikari:
+      schema: ENC(${DB_SCHEMA})
+      minimum-idle: 2
+      maximum-pool-size: 10
+      idle-timeout: 30000         # 30s - release idle connections
+      max-lifetime: 600000        # 10m - recycle connections to avoid DB timeouts
+      connection-timeout: 30000   # 30s - wait for connection
+  rabbitmq:
+    host: ENC(${RABBITMQ_HOST})
+    port: ${RABBITMQ_PORT}
+    username: ENC(${RABBITMQ_USER})
+    password: ENC(${RABBITMQ_PASSWORD})
+    listener:
+      simple:
+        prefetch: 1
+        acknowledge-mode: manual
+
+
+rabbitmq:
+  queues:
+    commission-clac:
+      name: commission-clac.queue
+      exchange: commission-clac.exchange
+      routing-key: commission-clac.key
+    commission-clac-retry:
+      name: commission-clac.queue.retry
+      exchange: commission-clac.exchange
+      routing-key: commission-clac.key.retry
+      ttl: 86400000
+
+jasypt:
+  encryptor:
+    algorithm: PBEWITHHMACSHA512ANDAES_256
+    password: ${JASYPT_PASSWORD}
+
+application:
+  google:
+    credential: ENC(${GOOGLE_DRIVE_CREDENTIAL})
+    client-id: ENC(${GOOGLE_CLIENT_ID})
+  jwt:
+    secret: ENC(${JWT_SECRET})
+    end-after: ${JWT_TIMEOUT}
+    extra-time: ${JWT_EXTRA_TIME}
+  white-list: ${WHITE_LIST}
