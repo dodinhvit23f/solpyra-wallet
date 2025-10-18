@@ -58,12 +58,10 @@ rabbitmq:
       name: commission-clac.queue
       exchange: commission-clac.exchange
       routing-key: commission-clac.key
-    commission-clac-retry:
-      name: commission-clac.queue.retry
-      exchange: commission-clac.exchange
-      routing-key: commission-clac.key.retry
-      ttl: 60000
-
+    commission-clac-callback:
+      name: commission-clac-callback.queue
+      exchange: commission-clac-callback.exchange
+      routing-key: commission-clac-callback.key
 jasypt:
   encryptor:
     algorithm: PBEWITHHMACSHA512ANDAES_256
@@ -78,22 +76,3 @@ application:
     end-after: ${JWT_TIMEOUT}
     extra-time: ${JWT_EXTRA_TIME}
   white-list: ${WHITE_LIST}
-
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
-        orm:
-          jdbc:
-            bind: TRACE
-      spring:
-        framework:
-          jdbc:
-            core:
-              JdbcTemplate: DEBUG
-              StatementCreatorUtils: TRACE

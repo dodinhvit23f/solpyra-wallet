@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import com.solpyra.configuration.RabbitQueuesProperties;
 import com.solpyra.configuration.RabbitQueuesProperties.QueueProperties;
+import com.solpyra.constant.Constant;
 import com.solpyra.domain.wallet.dto.CommissionMessage;
 import com.solpyra.domain.wallet.services.WalletService;
 import com.solpyra.rabbitmq.MessageProducer;
@@ -28,6 +29,7 @@ public class CommissionConsumer {
 
   @RabbitListener(queues = "${rabbitmq.queues.commission-clac.name}")
   public void receiveCommission(Message message, Channel channel) throws IOException {
+
     long tag = message.getMessageProperties().getDeliveryTag();
     String messageId = message.getMessageProperties().getMessageId();
     CommissionMessage commissionMessage = new CommissionMessage();
@@ -35,17 +37,21 @@ public class CommissionConsumer {
         .getHeaders()
         .getOrDefault("x-retry-count", 0);
 
+    QueueProperties callbackQueue = rabbitQueuesProperties.getCommissionClacCallback();
+
     try {
-      log.info("Received commission message: {}", message);
+      log.info("Received commission message: {}, {} times", messageId, retryCount + 1);
       commissionMessage = objectMapper.readValue(message.getBody(), CommissionMessage.class);
       walletService.addCommission(commissionMessage);
+      commissionMessage.setStatus(Constant.SUCCESS);
     } catch (Exception e) {
       log.error("Error processing commission for order {}: {}", commissionMessage.getId(),
           e.getMessage(), e);
-      log.info("Sending retry message {} ", messageId);
-      QueueProperties retry = rabbitQueuesProperties.getCommissionClacRetry();
-      messageProducer.send(retry.getExchange(), retry.getRoutingKey(), retryCount + 1, message);
+      log.error("Sending retry message {} - {}", messageId, retryCount);
+      commissionMessage.setStatus(Constant.FAILED);
+      commissionMessage.setErrorMessage(e.getMessage());
     } finally {
+      messageProducer.send(callbackQueue.getExchange(), callbackQueue.getName(), commissionMessage);
       channel.basicAck(tag, false);
     }
   }

@@ -19,6 +19,8 @@ public class CommissionMessage {
   private String id;
   private BigInteger userId;
   private List<Order> orders;
+  private String status;
+  private String errorMessage;
 
   @Data
   @NoArgsConstructor

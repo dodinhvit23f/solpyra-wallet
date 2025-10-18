@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitQueuesProperties {
 
   private QueueProperties commissionClac;
-  private QueueProperties commissionClacRetry;
+  private QueueProperties commissionClacCallback;
 
     @Getter
     @Setter

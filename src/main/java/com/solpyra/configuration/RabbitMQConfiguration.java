@@ -29,7 +29,7 @@ public class RabbitMQConfiguration {
 
   @Bean
   public Queue retryCommissionClacQueue() {
-    QueueProperties props = rabbitQueuesProperties.getCommissionClacRetry();
+    QueueProperties props = rabbitQueuesProperties.getCommissionClacCallback();
     return QueueBuilder.durable(props.getName())
         .deadLetterExchange("")
         .deadLetterRoutingKey(rabbitQueuesProperties.getCommissionClac().getName())
@@ -57,7 +57,7 @@ public class RabbitMQConfiguration {
   public Binding retryAddOrderBinding(Queue retryCommissionClacQueue, TopicExchange addOrderExchange) {
     return BindingBuilder.bind(retryCommissionClacQueue)
         .to(addOrderExchange)
-        .with(rabbitQueuesProperties.getCommissionClacRetry().getRoutingKey());
+        .with(rabbitQueuesProperties.getCommissionClacCallback().getRoutingKey());
   }
 
 
