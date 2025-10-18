@@ -1,12 +1,12 @@
 services:
-  solpyra-be:
+  solpyra-wallet:
     build:
       context: .
       dockerfile: Dockerfile
-    image: solpyra-be:1.0.0
-    container_name: solpyra-be
+    image: solpyra-wallet:1.0.0
+    container_name: solpyra-wallet
     ports:
-      - "8088:8080"
+      - "8089:8080"
     env_file:
       - .env
     restart: always
