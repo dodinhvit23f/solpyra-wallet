@@ -21,19 +21,14 @@ public class RabbitMQConfiguration {
   public Queue commissionClacQueue() {
     QueueProperties props = rabbitQueuesProperties.getCommissionClac();
     return QueueBuilder.durable(props.getName())
-        .deadLetterExchange("")
-        .deadLetterRoutingKey(rabbitQueuesProperties.getCommissionClac().getName())
         .lazy() // Optional, good for low-memory server
         .build();
   }
 
   @Bean
-  public Queue retryCommissionClacQueue() {
+  public Queue commissionClacCallbackQueue() {
     QueueProperties props = rabbitQueuesProperties.getCommissionClacCallback();
     return QueueBuilder.durable(props.getName())
-        .deadLetterExchange("")
-        .deadLetterRoutingKey(rabbitQueuesProperties.getCommissionClac().getName())
-        .ttl(props.getTtl())
         .lazy() // Optional, good for low-memory server
         .build();
   }
@@ -54,11 +49,18 @@ public class RabbitMQConfiguration {
   }
 
   @Bean
-  public Binding retryAddOrderBinding(Queue retryCommissionClacQueue, TopicExchange addOrderExchange) {
-    return BindingBuilder.bind(retryCommissionClacQueue)
-        .to(addOrderExchange)
-        .with(rabbitQueuesProperties.getCommissionClacCallback().getRoutingKey());
+  public TopicExchange commissionClacCallbackExchange() {
+    QueueProperties props = rabbitQueuesProperties.getCommissionClacCallback();
+    return new TopicExchange(props.getExchange());
   }
 
+  @Bean
+  public Binding commissionClacCallbackBinding(Queue commissionClacCallbackQueue, TopicExchange commissionClacCallbackExchange) {
+    var props = rabbitQueuesProperties.getCommissionClacCallback();
+    return BindingBuilder
+        .bind(commissionClacCallbackQueue)
+        .to(commissionClacCallbackExchange)
+        .with(props.getRoutingKey());
+  }
 
 }

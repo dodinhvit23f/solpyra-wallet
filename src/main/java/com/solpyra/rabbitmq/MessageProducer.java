@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MessageProducer {
 
+  private static final String X_RETRY_COUNT = "x-retry-count";
   private final RabbitTemplate rabbitTemplate;
   private final ObjectMapper objectMapper;
 
@@ -27,8 +28,20 @@ public class MessageProducer {
   }
 
   public void send(String exchange, String routingKey, int retry, Message message) {
-    message.getMessageProperties().getHeaders().put("x-retry-count", retry + 1);
+    message.getMessageProperties().getHeaders().put(X_RETRY_COUNT, retry + 1);
     rabbitTemplate.convertAndSend(exchange, routingKey, message);
+  }
+
+  public void send(String exchange, String routingKey, int retry, Object message)
+      throws JsonProcessingException {
+    MessageProperties props = new MessageProperties();
+    props.setMessageId(MDC.get(Constant.TRACE_ID));
+    props.setHeader(X_RETRY_COUNT, retry);
+
+    byte[] body = objectMapper.writeValueAsString(message).getBytes(StandardCharsets.UTF_8);
+    Message msg = new Message(body, props);
+
+    rabbitTemplate.convertAndSend(exchange, routingKey,msg);
   }
 
 }

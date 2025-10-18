@@ -18,6 +18,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -74,8 +75,10 @@ public class WalletServiceImpl implements WalletService {
 
 
     // Save triggers version increment; optimistic lock ensures no lost update
-    walletRepository.save(wallet);
-    transactionRepository.saveAll(transactions);
-    commissionLogRepository.saveAll(logs);
+    if(!ObjectUtils.isEmpty(logs)) {
+      walletRepository.save(wallet);
+      transactionRepository.saveAll(transactions);
+      commissionLogRepository.saveAll(logs);
+    }
   }
 }

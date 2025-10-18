@@ -12,6 +12,7 @@ import jakarta.persistence.OptimisticLockException;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -37,6 +38,8 @@ public class CommissionConsumer {
         .getHeaders()
         .getOrDefault("x-retry-count", 0);
 
+    MDC.put(Constant.TRACE_ID, messageId);
+
     QueueProperties callbackQueue = rabbitQueuesProperties.getCommissionClacCallback();
 
     try {
@@ -51,7 +54,8 @@ public class CommissionConsumer {
       commissionMessage.setStatus(Constant.FAILED);
       commissionMessage.setErrorMessage(e.getMessage());
     } finally {
-      messageProducer.send(callbackQueue.getExchange(), callbackQueue.getName(), commissionMessage);
+      log.info("Send callback message {}", messageId);
+      messageProducer.send(callbackQueue.getExchange(), callbackQueue.getRoutingKey(), retryCount, commissionMessage);
       channel.basicAck(tag, false);
     }
   }
