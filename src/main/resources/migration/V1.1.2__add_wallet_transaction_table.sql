@@ -8,11 +8,11 @@ CREATE TABLE IF NOT EXISTS wallet_transaction (
     amount NUMERIC(28,2) NOT NULL,
     transaction_type SMALLINT NOT NULL, -- e.g., 'COMMISSION', 'WITHDRAW'
     reference_id BIGINT, -- orderId or other external reference
-    payment_image VARCHAR(1500)
+    payment_image VARCHAR(1500),
     version INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_by VARCHAR(255),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_date TIMESTAMPTZ DEFAULT NOW(),
     updated_by VARCHAR(255)
  );
 

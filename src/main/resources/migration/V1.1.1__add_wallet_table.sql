@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS wallet (
     withdraw_balance NUMERIC(28,2) NOT NULL DEFAULT 0,
     commissioned_balance NUMERIC(28,2) NOT NULL DEFAULT 0,
     version INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_by VARCHAR(255),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_date TIMESTAMPTZ DEFAULT NOW(),
     updated_by VARCHAR(255)
 );

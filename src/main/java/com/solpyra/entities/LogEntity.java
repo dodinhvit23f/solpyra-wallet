@@ -8,7 +8,9 @@ import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ObjectUtils;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,5 +29,29 @@ public abstract class LogEntity extends BaseEntity {
 
   @Column(name = "updated_date")
   ZonedDateTime updatedDate;
+
+  @PrePersist
+  public void prePersist() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+    createdBy = "SYSTEM";
+    if(!ObjectUtils.isEmpty(auth)) {
+      createdBy = auth.getName();
+    }
+
+    createdDate = ZonedDateTime.now();
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+    updatedBy = "SYSTEM";
+    if(!ObjectUtils.isEmpty(auth)) {
+      updatedBy = auth.getName();
+    }
+
+    updatedDate = ZonedDateTime.now();
+  }
 
 }

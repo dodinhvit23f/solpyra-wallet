@@ -22,7 +22,7 @@ class ShopizerBeApplicationTests {
     encryptor.setConfig(config);
 
 
-    System.out.println("host " + encryptor.encrypt("wallet") );
+    System.out.println("host " + encryptor.decrypt("M1u1kmdBAaA410AspHfJTTfxS+ecXzfCUZno4Vq+X+mmJIsO0ypzFvOlbGtcQGzW") );
 
   }
 

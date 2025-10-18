@@ -1,5 +1,6 @@
 package com.solpyra.domain.wallet.services.impl;
 
+import com.solpyra.constant.CommissionStatus;
 import com.solpyra.constant.Constant;
 import com.solpyra.constant.TransactionType;
 import com.solpyra.domain.wallet.dto.CommissionMessage;
@@ -11,6 +12,7 @@ import com.solpyra.entities.CommissionLog;
 import com.solpyra.entities.Wallet;
 import com.solpyra.entities.WalletTransaction;
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,7 @@ public class WalletServiceImpl implements WalletService {
     List<CommissionLog> logs = new LinkedList<>();
 
     message.getOrders().forEach(order -> {
+
       if (commissionLogRepository.findByOrderId(order.getOrderId()).isPresent()) {
         return;
       }
@@ -63,7 +66,8 @@ public class WalletServiceImpl implements WalletService {
           .orderId(order.getOrderId())
           .wallet(wallet)
           .commissionAmount(order.getCommissionAmount())
-          .status(Constant.SUCCESS)
+          .status(CommissionStatus.SUCCESS)
+          .processedAt(ZonedDateTime.now())
           .build());
     });
 

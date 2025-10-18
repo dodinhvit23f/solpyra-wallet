@@ -62,7 +62,7 @@ rabbitmq:
       name: commission-clac.queue.retry
       exchange: commission-clac.exchange
       routing-key: commission-clac.key.retry
-      ttl: 86400000
+      ttl: 60000
 
 jasypt:
   encryptor:
@@ -78,3 +78,22 @@ application:
     end-after: ${JWT_TIMEOUT}
     extra-time: ${JWT_EXTRA_TIME}
   white-list: ${WHITE_LIST}
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+        orm:
+          jdbc:
+            bind: TRACE
+      spring:
+        framework:
+          jdbc:
+            core:
+              JdbcTemplate: DEBUG
+              StatementCreatorUtils: TRACE
