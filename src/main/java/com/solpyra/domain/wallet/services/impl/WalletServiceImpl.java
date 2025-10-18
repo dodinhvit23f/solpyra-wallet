@@ -54,6 +54,7 @@ public class WalletServiceImpl implements WalletService {
       }
 
       wallet.setBalance(wallet.getBalance().add(order.getCommissionAmount()));
+      wallet.setCommissionedBalance(wallet.getBalance().add(order.getCommissionAmount()));
 
       transactions.add(WalletTransaction.builder()
           .wallet(wallet)
