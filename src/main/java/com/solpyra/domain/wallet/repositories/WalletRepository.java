@@ -2,6 +2,7 @@ package com.solpyra.domain.wallet.repositories;
 
 import com.solpyra.entities.Wallet;
 import jakarta.persistence.LockModeType;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,7 @@ public interface WalletRepository extends JpaRepository<Wallet, BigInteger> {
   @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
   @Query("SELECT w FROM Wallet w WHERE w.customerId = :customerId")
   Optional<Wallet> findByCustomerIdForUpdate(@Param("customerId") BigInteger customerId);
+
+  @Query("SELECT w.balance FROM Wallet w WHERE w.customerId = :customerId")
+  BigDecimal getBalanceByCustomerId(BigInteger customerId);
 }

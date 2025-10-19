@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Wallet extends LogEntity {
 
-  @Column(name = "customer_id", nullable = false, length = 50)
+  @Column(name = "customer_id", nullable = false)
   private BigInteger customerId;
 
   @Column(name = "balance", nullable = false)
