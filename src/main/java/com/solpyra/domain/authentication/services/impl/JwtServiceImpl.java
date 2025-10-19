@@ -16,10 +16,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -30,12 +33,13 @@ import org.springframework.util.ObjectUtils;
 public class JwtServiceImpl implements JwtService {
 
   final SecretKey secretKeyJwt;
+  final StringEncryptor encryptorBean;
 
   @Override
   public Optional<User> getUserFromJwtToken(String token) throws UsernameNotFoundException {
     Claims claims = getClaims(token);
 
-    String userName = claims.get(Constant.USER_DETAIL, String.class);
+    String userName = encryptorBean.decrypt(claims.get(Constant.SALT, String.class));
     String password = claims.get(Constant.PASSWORD, String.class);
 
     if (ObjectUtils.isEmpty(claims.get(Constant.AUTHORITY))) {

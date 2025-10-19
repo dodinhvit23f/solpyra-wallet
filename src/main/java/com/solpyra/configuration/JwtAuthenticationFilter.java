@@ -94,7 +94,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
       doFilter(request, response, chain);
     } catch (AuthenticationCredentialsNotFoundException | ExpiredJwtException
-             | MalformedJwtException | SignatureException e) {
+             | MalformedJwtException | SignatureException | IllegalArgumentException e) {
 
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType("application/json");
