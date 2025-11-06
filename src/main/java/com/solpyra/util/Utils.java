@@ -7,7 +7,10 @@ import com.querydsl.core.types.dsl.PathBuilder;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -114,5 +117,20 @@ public final class Utils {
     }
 
     return orderSpecifiers;
+  }
+
+  public static ZonedDateTime firstMomentOfMonth(int year, int month) {
+    return LocalDate.of(year, month, 1)
+        .atStartOfDay(ZoneOffset.systemDefault())
+        .withSecond(0).withNano(0);
+  }
+
+  public static ZonedDateTime lastMomentOfMonth(int year, int month) {
+    ZonedDateTime firstNextMonth = LocalDate.of(year, month, 1)
+        .plusMonths(1)
+        .atStartOfDay(ZoneOffset.systemDefault())
+        .withSecond(0).withNano(0);
+    // one nanosecond before next month
+    return firstNextMonth.minusNanos(1);
   }
 }

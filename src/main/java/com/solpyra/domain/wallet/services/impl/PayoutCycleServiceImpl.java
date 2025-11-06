@@ -3,13 +3,18 @@ package com.solpyra.domain.wallet.services.impl;
 import com.solpyra.constant.PayoutCycleStatus;
 import com.solpyra.domain.wallet.repositories.PayoutCycleRepository;
 import com.solpyra.domain.wallet.repositories.WalletRepository;
+import com.solpyra.domain.wallet.repositories.WalletTransactionRepository;
 import com.solpyra.domain.wallet.services.PayoutCycleService;
 import com.solpyra.entities.PayoutCycle;
 import com.solpyra.entities.Wallet;
+import com.solpyra.util.Utils;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,20 +28,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class PayoutCycleServiceImpl implements PayoutCycleService {
   final PayoutCycleRepository payoutCycleRepository;
+  final WalletTransactionRepository walletTransactionRepository;
   final WalletRepository walletRepository;
 
   /**
    * Create (or return existing) payout cycle for a given year & month.
    * Idempotent: if exists -> return existing without creating a new one.
    */
-  public PayoutCycle createIfAbsent(Wallet wallet, int year, int month) {
-    return payoutCycleRepository.findByWalletIdAndPeriodYearAndPeriodMonth(wallet.getId(), year, month)
+  public Optional<PayoutCycle> createIfAbsent(Wallet wallet, int year, int month) {
+    return Optional.ofNullable(payoutCycleRepository.findByWalletIdAndPeriodYearAndPeriodMonth(wallet.getId(), year, month)
         .orElseGet(() -> {
-          ZonedDateTime startAt = firstMomentOfMonth(year, month);
-          ZonedDateTime endAt = lastMomentOfMonth(year, month);
+          ZonedDateTime startAt = Utils.firstMomentOfMonth(year, month);
+          ZonedDateTime endAt = Utils.lastMomentOfMonth(year, month);
+
+          BigDecimal amount = walletTransactionRepository.getCommissionByTime(wallet.getCustomerId(), startAt, endAt);
+
+          if(Objects.isNull(amount)) {
+            return null;
+          }
 
           PayoutCycle cycle = PayoutCycle.builder()
               .wallet(wallet)
+              .amount(amount)
               .periodYear(year)
               .periodMonth(month)
               .startAt(startAt)
@@ -48,7 +61,7 @@ public class PayoutCycleServiceImpl implements PayoutCycleService {
           PayoutCycle saved = payoutCycleRepository.save(cycle);
           log.info("Created payout cycle wallet={} {}/{} id={}", wallet, month, year, saved.getId());
           return saved;
-        });
+        }));
   }
 
   /**
@@ -63,26 +76,12 @@ public class PayoutCycleServiceImpl implements PayoutCycleService {
     int month = lastMonth.getMonthValue();
 
     walletRepository.findAll().forEach(wallet -> {
-      PayoutCycle payoutCycle = createIfAbsent(wallet, year, month);
-      log.info("Ensure payout cycle exists for {}/{} (id={})",
-          payoutCycle.getPeriodMonth(), payoutCycle.getPeriodYear(), wallet.getId());
+      createIfAbsent(wallet, year, month).ifPresent(payoutCycle ->
+        log.info("Ensure payout cycle exists for {}/{} (id={})",
+            payoutCycle.getPeriodMonth(), payoutCycle.getPeriodYear(), wallet.getId())
+      );
     });
 
-  }
-
-  private ZonedDateTime firstMomentOfMonth(int year, int month) {
-    return LocalDate.of(year, month, 1)
-        .atStartOfDay(ZoneOffset.systemDefault())
-        .withSecond(0).withNano(0);
-  }
-
-  private ZonedDateTime lastMomentOfMonth(int year, int month) {
-    ZonedDateTime firstNextMonth = LocalDate.of(year, month, 1)
-        .plusMonths(1)
-        .atStartOfDay(ZoneOffset.systemDefault())
-        .withSecond(0).withNano(0);
-    // one nanosecond before next month
-    return firstNextMonth.minusNanos(1);
   }
 
   /**

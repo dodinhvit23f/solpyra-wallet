@@ -62,6 +62,7 @@ public class WalletServiceImpl implements WalletService {
           .amount(order.getCommissionAmount())
           .transactionType(TransactionType.COMMISSION)
           .referenceId(order.getOrderId())
+          .createdDate(order.getCommissionDate())
           .build());
 
       logs.add(CommissionLog.builder()

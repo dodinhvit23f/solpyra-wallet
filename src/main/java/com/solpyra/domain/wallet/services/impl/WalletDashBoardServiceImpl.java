@@ -5,6 +5,7 @@ import com.solpyra.domain.wallet.dto.WalletBalance;
 import com.solpyra.domain.wallet.repositories.WalletRepository;
 import com.solpyra.domain.wallet.repositories.WalletTransactionRepository;
 import com.solpyra.domain.wallet.services.WalletDashBoardService;
+import com.solpyra.util.Utils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.Principal;
@@ -29,20 +30,11 @@ public class WalletDashBoardServiceImpl  implements WalletDashBoardService {
 
     ZonedDateTime now = ZonedDateTime.now();
 
-    ZonedDateTime firstDay = now
-        .with(TemporalAdjusters.firstDayOfMonth())
-        .toLocalDate()
-        .atStartOfDay(now.getZone());
-
-    ZonedDateTime lastDay = now
-        .with(TemporalAdjusters.lastDayOfMonth())
-        .toLocalDate()
-        .atTime(23, 59, 59, 999_999_999)
-        .atZone(now.getZone());
+    ZonedDateTime firstDay = Utils.firstMomentOfMonth(now.getYear(), now.getMonthValue());
+    ZonedDateTime lastDay = Utils.firstMomentOfMonth(now.getYear(), now.getMonthValue());
 
     currentMonth = walletTransactionRepository.getCommissionByTime(userId,firstDay, lastDay);
     previousMonth = walletTransactionRepository.getCommissionByTime(userId,firstDay.minusMonths(1), lastDay.minusMonths(1));
-
 
     return CashBackOverall.builder()
         .currentMonth(currentMonth)

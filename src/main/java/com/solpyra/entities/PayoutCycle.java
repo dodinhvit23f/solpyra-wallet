@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,9 @@ public class PayoutCycle extends BaseEntity {
 
   @Column(name = "period_month", nullable = false)
   private Integer periodMonth;
+
+  @Column(name = "amount", nullable = false)
+  private BigDecimal amount;
 
   @Column(name = "start_at", nullable = false)
   private ZonedDateTime startAt;

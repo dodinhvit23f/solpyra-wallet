@@ -5,7 +5,7 @@ CREATE SEQUENCE IF NOT EXISTS payout_cycle_seq START 1 INCREMENT 1;
 CREATE TABLE IF NOT EXISTS payout_cycle (
     id BIGINT PRIMARY KEY DEFAULT nextval('payout_cycle_seq'),
     wallet_id BIGINT NOT NULL,
-    amount
+    amount NUMERIC(28,2) NOT NULL,
     period_year INT NOT NULL,
     period_month INT NOT NULL,
     start_at TIMESTAMPTZ NOT NULL,

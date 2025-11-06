@@ -11,11 +11,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.ZonedDateTime;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ObjectUtils;
 
 @Entity
 @Table(name = "wallet_transaction")
@@ -45,5 +50,20 @@ public class WalletTransaction extends LogEntity {
 
   @Column(name = "payment_image")
   private String paymentImage;
+
+  @Override
+  public void prePersist() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+    createdBy = "SYSTEM";
+    if(!ObjectUtils.isEmpty(auth)) {
+      createdBy = auth.getName();
+    }
+
+    if(Objects.isNull(createdDate)) {
+      createdDate = ZonedDateTime.now();
+    }
+
+  }
 
 }
