@@ -8,11 +8,10 @@ import com.solpyra.domain.wallet.services.WalletDashBoardService;
 import com.solpyra.util.Utils;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.security.Principal;
 import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.jasypt.encryption.StringEncryptor;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,10 +20,11 @@ public class WalletDashBoardServiceImpl  implements WalletDashBoardService {
 
   final WalletTransactionRepository walletTransactionRepository;
   final WalletRepository walletRepository;
+  final StringEncryptor encryptorBean;
 
   @Override
-  public CashBackOverall getCashBackOverall(Principal principal) {
-    BigInteger userId = new BigInteger(principal.getName());
+  public CashBackOverall getCashBackOverall(String id) {
+    BigInteger userId = new BigInteger(encryptorBean.decrypt(id));
     BigDecimal currentMonth = BigDecimal.ZERO;
     BigDecimal previousMonth = BigDecimal.ZERO;
 
@@ -43,8 +43,8 @@ public class WalletDashBoardServiceImpl  implements WalletDashBoardService {
   }
 
   @Override
-  public WalletBalance getWalletBalance(Principal principal){
-    BigInteger userId = new BigInteger(principal.getName());
+  public WalletBalance getWalletBalance(String id){
+    BigInteger userId = new BigInteger(encryptorBean.decrypt(id));
     BigDecimal balance = walletRepository.getBalanceByCustomerId(userId);
 
     if(Objects.isNull(balance)) {

@@ -1,6 +1,6 @@
 package com.solpyra.domain.authentication.services.impl;
 
-import com.solpyra.constant.ApplicationMessage;
+import com.solpyra.constant.ApplicationMessage.ErrorMessage;
 import com.solpyra.constant.Constant;
 import com.solpyra.domain.authentication.services.JwtService;
 import io.jsonwebtoken.Claims;
@@ -17,12 +17,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jasypt.encryption.StringEncryptor;
-import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -33,17 +31,16 @@ import org.springframework.util.ObjectUtils;
 public class JwtServiceImpl implements JwtService {
 
   final SecretKey secretKeyJwt;
-  final StringEncryptor encryptorBean;
 
   @Override
   public Optional<User> getUserFromJwtToken(String token) throws UsernameNotFoundException {
     Claims claims = getClaims(token);
 
-    String userName = encryptorBean.decrypt(claims.get(Constant.SALT, String.class));
+    String userName = claims.get(Constant.USER_DETAIL, String.class);
     String password = claims.get(Constant.PASSWORD, String.class);
 
     if (ObjectUtils.isEmpty(claims.get(Constant.AUTHORITY))) {
-      throw new UsernameNotFoundException(ApplicationMessage.AuthenticationMessage.AUTHORITY_IS_EMPTY);
+      throw new UsernameNotFoundException(ErrorMessage.AUTHORITY_IS_EMPTY);
     }
 
     List<SimpleGrantedAuthority> authorities = claims.get(Constant.AUTHORITY, List.class).stream()
@@ -107,7 +104,8 @@ public class JwtServiceImpl implements JwtService {
         .compact();
   }
 
-  private Claims getClaims(String token) {
+  @Override
+  public Claims getClaims(String token) {
     return Jwts.parser()
         .verifyWith(secretKeyJwt)
         .build()

@@ -1,5 +1,6 @@
 package com.solpyra.domain.authentication.services;
 
+import io.jsonwebtoken.Claims;
 import java.util.Date;
 import java.util.Optional;
 import org.springframework.security.core.userdetails.User;
@@ -15,4 +16,6 @@ public interface JwtService {
   boolean validateRefreshJwtToken(String refreshToken);
 
   String generateToken(User userDetails, String uuid, Date expiryDate, String type);
+
+  Claims getClaims(String token);
 }

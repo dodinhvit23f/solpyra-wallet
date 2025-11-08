@@ -2,7 +2,7 @@ package com.solpyra.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solpyra.common.dto.response.Response;
-import com.solpyra.constant.ApplicationMessage;
+import com.solpyra.constant.ApplicationMessage.ErrorMessage;
 import com.solpyra.domain.authentication.services.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -79,12 +79,12 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
       if (ObjectUtils.isEmpty(jwtToken) ||
           !jwtService.validateJwtToken(jwtToken)) {
         throw new AuthenticationCredentialsNotFoundException(
-            ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN);
+            ErrorMessage.NOT_FUND_PAYOUT);
       }
 
       User userDetail = jwtService.getUserFromJwtToken(jwtToken)
           .orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
-              ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN));
+              ErrorMessage.NOT_FUND_PAYOUT));
 
       UsernamePasswordAuthenticationToken authenticationToken =
           new UsernamePasswordAuthenticationToken(userDetail, null, userDetail.getAuthorities());
@@ -99,9 +99,9 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType("application/json");
       response.getWriter().write(objectMapper.writeValueAsString(Response.<Object>builder()
-          .errorCodes(Set.of(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN))
-          .extraMessage(Map.of(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN,
-              messageSource.getMessage(ApplicationMessage.AuthenticationMessage.INVAlID_TOKEN, null,
+          .errorCodes(Set.of(ErrorMessage.NOT_FUND_PAYOUT))
+          .extraMessage(Map.of(ErrorMessage.NOT_FUND_PAYOUT,
+              messageSource.getMessage(ErrorMessage.NOT_FUND_PAYOUT, null,
                   Locale.getDefault())))
           .traceId(UUID.randomUUID().toString())
           .build()));
