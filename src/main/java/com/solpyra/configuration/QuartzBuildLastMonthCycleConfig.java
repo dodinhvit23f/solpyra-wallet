@@ -23,13 +23,12 @@ public class QuartzBuildLastMonthCycleConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(buildLastMonthCycleJobDetail)
                 .withIdentity("buildLastMonthCycleTrigger")
-                /*.withSchedule(
+                .withSchedule(
                         CronScheduleBuilder
                                 .cronSchedule("0 0 1 2 * ?")  
                                 // sec min hour day month dayOfWeek
                                 // 01:00:00, 2nd day of every month
                                 .inTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"))
-                )*/
-                .build();
+                ).build();
     }
 }
