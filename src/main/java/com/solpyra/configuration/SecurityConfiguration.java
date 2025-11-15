@@ -47,6 +47,7 @@ public class SecurityConfiguration {
             auth
                 .requestMatchers("/wallet/**").hasAnyAuthority(Constant.ADMIN, Constant.USER)
                 .requestMatchers("/payout/**").hasAnyAuthority(Constant.ADMIN)
+                .requestMatchers("/user/payout/**").hasAnyAuthority(Constant.ADMIN,Constant.USER)
                 .anyRequest()
                 .authenticated()
         )

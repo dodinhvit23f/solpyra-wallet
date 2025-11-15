@@ -2,7 +2,6 @@ package com.solpyra.domain.wallet.services;
 
 import com.solpyra.common.dto.response.PageObject;
 import com.solpyra.domain.wallet.dto.request.PayoutEvidence;
-import com.solpyra.entities.PayoutCycle;
 import com.solpyra.exception.NotFoundException;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -16,5 +15,7 @@ public interface PayoutCycleService {
   PageObject findAllPayout(List<Long> status, Pageable pageable);
 
   @Transactional
-  PayoutCycle markPaidWithEvidence(PayoutEvidence evidence) throws NotFoundException;
+  void markPaidWithEvidence(PayoutEvidence evidence) throws NotFoundException;
+
+  PageObject findUserPayout(String userId, List<Long> status, Pageable pageable);
 }

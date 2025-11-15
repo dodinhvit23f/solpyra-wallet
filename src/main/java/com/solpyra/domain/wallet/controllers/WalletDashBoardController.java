@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("wallet/v1/dashboard")
+@RequestMapping("/wallet/v1/dashboard")
 public class WalletDashBoardController {
 
     final WalletDashBoardService walletDashBoardService;
